@@ -76,7 +76,7 @@ function getArgumentsCount(funcs) {
  *
  */
 function getPowerFunction(exponent) {
-  return function (x) {
+  return function powerFunction(x) {
     return x ** exponent;
   };
 }
@@ -119,8 +119,17 @@ function getPolynom(...coefficients) {
  *   ...
  *   memoizer() => the same random number  (next run, returns the previous cached result)
  */
-function memoize(/* func */) {
-  throw new Error('Not implemented');
+function memoize(func) {
+  let called = false;
+  let result;
+  function memoized(...args) {
+    if (!called) {
+      result = func(...args);
+      called = true;
+    }
+    return result;
+  }
+  return memoized;
 }
 
 /**
@@ -138,8 +147,19 @@ function memoize(/* func */) {
  * }, 2);
  * retryer() => 2
  */
-function retry(/* func, attempts */) {
-  throw new Error('Not implemented');
+function retry(func, attempts) {
+  function retryer(...args) {
+    let lastError;
+    for (let i = 0; i <= attempts; i += 1) {
+      try {
+        return func(...args);
+      } catch (error) {
+        lastError = error;
+      }
+    }
+    throw lastError;
+  }
+  return retryer;
 }
 
 /**
@@ -165,8 +185,15 @@ function retry(/* func, attempts */) {
  * cos(3.141592653589793) ends
  *
  */
-function logger(/* func, logFunc */) {
-  throw new Error('Not implemented');
+function logger(func, logFunc) {
+  function loggedFunction(...args) {
+    const argsStr = args.map((arg) => JSON.stringify(arg)).join(',');
+    logFunc(`${func.name}(${argsStr}) starts`);
+    const result = func(...args);
+    logFunc(`${func.name}(${argsStr}) ends`);
+    return result;
+  }
+  return loggedFunction;
 }
 
 /**
